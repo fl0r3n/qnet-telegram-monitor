@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+    inputs:
+      send_test:
+        description: Send a Telegram test notification only
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -20,6 +26,7 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       MONITOR_UNTIL: "2026-07-23T18:00:00+09:00"
+      SEND_TEST_NOTIFICATION: ${{ github.event.inputs.send_test || 'false' }}
 
     steps:
       - uses: actions/checkout@v4

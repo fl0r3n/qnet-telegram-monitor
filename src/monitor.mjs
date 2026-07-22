@@ -188,6 +188,12 @@ async function sendTelegram(message) {
 }
 
 export async function main() {
+  if (process.env.SEND_TEST_NOTIFICATION === "true") {
+    await sendTelegram("✅ <b>Q-Net 빈자리 알림 테스트 성공</b>\n\nGitHub에서 텔레그램 알림을 정상적으로 보낼 수 있습니다.");
+    console.log("텔레그램 시험 알림을 보냈습니다.");
+    return;
+  }
+
   const now = new Date();
   if (now >= new Date(CONFIG.monitorUntil)) {
     console.log(`감시 종료 시각이 지났습니다: ${CONFIG.monitorUntil}`);
