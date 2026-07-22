@@ -95,8 +95,21 @@ async function queryAvailableRows(page, config = CONFIG) {
   }
   await clickAndSettle(page, targetRow.getByRole("link", { name: "현황보기", exact: true }));
 
+  await page.waitForFunction(
+    () => typeof window.getSelField === "function" && typeof window.goNext === "function",
+  );
   await page.locator('select[name="JongMook"]').selectOption(config.subjectValue);
-  await clickAndSettle(page, page.getByRole("button", { name: "다음", exact: true }));
+  await page.waitForFunction(
+    (subjectName) => document.querySelector('input[name="jmNm"]')?.value === subjectName,
+    config.subjectName,
+  );
+  await Promise.all([
+    page.waitForURL(/id=rcv00303/, {
+      waitUntil: "domcontentloaded",
+      timeout: 15_000,
+    }),
+    page.getByRole("button", { name: "다음", exact: true }).click(),
+  ]);
 
   const regionSelect = page.locator("select#sido");
   try {
