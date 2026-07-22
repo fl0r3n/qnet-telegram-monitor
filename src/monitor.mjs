@@ -98,7 +98,19 @@ async function queryAvailableRows(page, config = CONFIG) {
   await page.locator('select[name="JongMook"]').selectOption(config.subjectValue);
   await clickAndSettle(page, page.getByRole("button", { name: "다음", exact: true }));
 
-  await page.locator("select#sido").selectOption({ label: config.province });
+  const regionSelect = page.locator("select#sido");
+  try {
+    await regionSelect.waitFor({ state: "attached", timeout: 10_000 });
+  } catch {
+    const diagnostic = await page.evaluate(() => ({
+      url: location.href,
+      title: document.title,
+      text: document.body.innerText.replace(/\s+/g, " ").slice(0, 1_200),
+    }));
+    throw new Error(`지역 선택 화면으로 이동하지 못했습니다: ${JSON.stringify(diagnostic)}`);
+  }
+
+  await regionSelect.selectOption({ label: config.province });
   await page.waitForTimeout(800);
   await page.locator("select#sigungu").selectOption({ label: config.city });
   await page.locator("select#recptCd").selectOption(config.applicantTypeValue);
