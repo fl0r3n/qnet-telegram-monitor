@@ -135,6 +135,14 @@ async function queryAvailableRows(page, config = CONFIG) {
   await page.waitForTimeout(800);
   await page.locator("select#closingView").selectOption("N");
   await clickAndSettle(page, page.getByRole("button", { name: "조회", exact: true }), 1_500);
+  await page.waitForFunction(
+    () =>
+      [...document.querySelectorAll("table")].some((item) =>
+        (item.caption?.textContent || "").includes("필기 현황 조회 목록"),
+      ) || document.body.innerText.includes("데이터가 존재하지 않습니다"),
+    null,
+    { timeout: 15_000 },
+  );
 
   const rawRows = await page.evaluate(() => {
     const tables = [...document.querySelectorAll("table")];
