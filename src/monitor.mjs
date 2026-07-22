@@ -103,6 +103,11 @@ async function queryAvailableRows(page, config = CONFIG) {
     (subjectName) => document.querySelector('input[name="jmNm"]')?.value === subjectName,
     config.subjectName,
   );
+  await page.waitForFunction(
+    () => Boolean(document.querySelector('input[name="selFields"]')?.value),
+    null,
+    { timeout: 15_000 },
+  );
   await Promise.all([
     page.waitForURL(/id=rcv00303/, {
       waitUntil: "domcontentloaded",
