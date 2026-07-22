@@ -136,14 +136,23 @@ async function queryAvailableRows(page, config = CONFIG) {
   await page.locator("select#closingView").selectOption("N");
   await clickAndSettle(page, page.getByRole("button", { name: "조회", exact: true }), 1_500);
 
-  const resultTable = page.locator("table").filter({ hasText: "필기 현황 조회 목록" });
-  if (await resultTable.count() !== 1) {
-    throw new Error("접수 현황 결과표를 찾지 못했습니다.");
-  }
-
-  const rawRows = await resultTable.locator("tbody tr").evaluateAll((rows) =>
-    rows.map((row) => [...row.children].map((cell) => cell.innerText)),
-  );
+  const rawRows = await page.evaluate(() => {
+    const tables = [...document.querySelectorAll("table")];
+    const table = tables.find((item) =>
+      (item.caption?.textContent || "").includes("필기 현황 조회 목록"),
+    );
+    if (!table) {
+      const diagnostic = {
+        url: location.href,
+        captions: tables.map((item) => item.caption?.textContent?.trim() || ""),
+        summaries: tables.map((item) => item.getAttribute("summary") || ""),
+      };
+      throw new Error(`접수 현황 결과표를 찾지 못했습니다: ${JSON.stringify(diagnostic)}`);
+    }
+    return [...table.querySelectorAll("tbody tr")].map((row) =>
+      [...row.children].map((cell) => cell.innerText),
+    );
+  });
   return availableRowsFromCells(rawRows);
 }
 
