@@ -225,10 +225,12 @@ export async function main() {
     console.log(rows.length ? "동일한 빈자리라 중복 알림을 생략했습니다." : "현재 접수 가능한 빈자리가 없습니다.");
   }
 
-  await saveState(CONFIG.statePath, {
-    lastAvailableKey: currentKey,
-    lastCheckedAt: now.toISOString(),
-  });
+  if (currentKey !== state.lastAvailableKey) {
+    await saveState(CONFIG.statePath, {
+      lastAvailableKey: currentKey,
+      lastCheckedAt: now.toISOString(),
+    });
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
